@@ -1,8 +1,22 @@
 import { Stack } from "expo-router";
 
 export default function RootLayout() {
-  return <Stack>
-    <Stack.Screen name="index" options ={{title:"Home"}}/>
+  return <Stack
+    screenOptions={{
+      headerStyle:{
+        backgroundColor:"#f4511e",
+      },
+      headerTintColor:"#fff",
+      headerTitleAlign:"center",
+      headerTitleStyle:{
+        fontWeight:"bold",
+        fontSize:20,
+        fontFamily:"arial",
+      }
+
+    }}
+  >
+    <Stack.Screen name="index" options ={{title:"Pokedex"}}/>
     <Stack.Screen name="details" options ={{
       title:"Details",
       headerBackButtonDisplayMode:"minimal",

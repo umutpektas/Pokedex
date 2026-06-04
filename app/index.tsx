@@ -1,6 +1,6 @@
 import { Link } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 interface Pokemon {
   name:string;
@@ -49,9 +49,9 @@ export default function Index() {
   },[])
  
 
-  async function fetchPokemons() {
+  async function fetchPokemons(currentOffset = 0) {
         try{
-          const response = await fetch("https://pokeapi.co/api/v2/pokemon/?limit=20")
+          const response = await fetch(`https://pokeapi.co/api/v2/pokemon/?limit=20&offset=${currentOffset}`)
           const data = await response.json()
 
           const detailedPokemons = await Promise.all(
@@ -69,7 +69,7 @@ export default function Index() {
 
           console.log(JSON.stringify(detailedPokemons[0], null, 2))
 
-          setPokemons(detailedPokemons)
+          setPokemons((prevPokemons) => [...prevPokemons, ...detailedPokemons]);
         } catch(e){
           console.log(e)
         }
@@ -79,13 +79,14 @@ export default function Index() {
     <ScrollView contentContainerStyle={{
       gap:16,
       padding:16,
+      backgroundColor:"#f4511e20",
     }}>
       {pokemons.map((pokemon)=>(
         <Link key = {pokemon.name}
           href={{pathname: "/details", params: {name: pokemon.name}}}
           style={{
           //@ts-ignore
-          backgroundColor: colorsByType[pokemon.types[0].type.name] +50,
+          backgroundColor: colorsByType[pokemon.types[0].type.name] +60,
           padding:20,
           borderRadius:16,
 
@@ -112,6 +113,17 @@ export default function Index() {
         </View>
         </Link>
       ))}
+
+      <Pressable
+        style={({ pressed }) => [
+          styles.loadMoreBtn,
+          pressed && styles.loadMoreBtnPressed,
+        ]}
+        onPress={() =>fetchPokemons(pokemons.length)}
+      >
+        <Text style={styles.loadMoreBtnText}>Get More Pokemons!</Text>
+      </Pressable>
+
     </ScrollView>
   );
 }
@@ -128,6 +140,25 @@ const styles = StyleSheet.create({
     fontSize:20,
     fontWeight:"bold",
     color:"grey",
+    textAlign:"center",
+  },
+  loadMoreBtn:{
+    borderRadius:12,
+    backgroundColor:"#333333",
+    width:"50%",
+    alignSelf:"center",
+    padding:8,
+  },
+  loadMoreBtnPressed:{
+    backgroundColor:"#555555",
+    transform:[{scale:0.98}],
+  },
+  loadMoreBtnText:{
+    color:"white",
+    fontSize:18,
+    fontWeight:"bold",
+    fontFamily:"arial",
+    fontStyle:"italic",
     textAlign:"center",
   }
 })
