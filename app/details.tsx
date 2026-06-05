@@ -1,10 +1,13 @@
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 
 interface PokemonData {
   abilities: any[];
-  image: string | null;
+  imageFront: string | null;
+  sImageFront: string| null;
+  imageBack: string | null;
+  sImageBack: string | null;
   types: string[];
 }
 
@@ -51,7 +54,10 @@ export default function Details() {
 
           const pokemonData = {
               abilities: details.abilities,
-              image:details.sprites.front_default,
+              imageFront:details.sprites.front_default,
+              sImageFront:details.sprites.front_shiny,
+              imageBack:details.sprites.back_default,
+              sImageBack:details.sprites.back_shiny,
               types: details.types.map((typeInfo:any) => typeInfo.type.name),
           }
           setPokemonData(pokemonData);
@@ -78,9 +84,51 @@ export default function Details() {
 
     <ScrollView contentContainerStyle={{
       gap:16,
-      padding:16,
+      padding:16, 
+      backgroundColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] + "25" : "#f5f5f5",
+      width:"100%",
+      height:"100%",
     }}>
+      <View style={{
+        flexDirection:"row",
+        flexWrap:"wrap",
+        justifyContent:"space-around",
+        padding:10,
+        backgroundColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] + "55" : "#f5f5f5",
+        //backgroundColor:"#f3f3f3",
+        height:"100%",
+        maxHeight:400,
+        borderRadius:16,
+        borderWidth:1,
+        borderColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] : "#f5f5f5",
+      }}
+      >
+        <View style={styles.imageWrapper}>
+          <Text style={styles.imageText}>Default:</Text>
+          <Image
+            source={{uri:pokemonData?.imageFront||"undefined"}}
+            style={{width:"100%",height:"45%"}}
+          />
+          <Image
+            source={{uri:pokemonData?.imageBack||"undefined"}}
+            style={{width:"100%",height:"45%"}}
+          />
+        </View>
 
+        <View style={styles.imageWrapper}>
+          <Text style={styles.imageText}>Shiny:</Text>
+          <Image
+          source={{uri:pokemonData?.sImageFront||"undefined"}}
+          style={{width:"100%",height:"45%"}}
+          />
+          <Image
+          source={{uri:pokemonData?.sImageBack||"undefined"}}
+          style={{width:"100%",height:"45%"}}
+          />
+        </View>     
+        
+        
+      </View>
 
       
     </ScrollView>
@@ -90,5 +138,31 @@ export default function Details() {
 
 
 const styles = StyleSheet.create({
- 
+  imageWrapper:{
+    flexDirection:"row",
+    flexWrap:"wrap",
+    justifyContent:"space-around",
+    width:"45%",
+    height:"100%",
+  },
+  imageText:{
+    fontSize:16,
+    fontWeight:"bold",
+    textAlign:"left",
+    //backgroundColor:"#f3f3f3",
+    color:"#333333",
+    textShadowColor:"#555555",
+    textShadowOffset:{
+      width:1,
+      height:1
+    },
+    textShadowRadius:1,
+    letterSpacing:1.2,
+    marginTop:5,
+    fontFamily:"arial",
+    fontStyle:"italic",
+    width:"100%",
+
+
+  }
 })
