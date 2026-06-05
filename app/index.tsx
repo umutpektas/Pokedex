@@ -71,7 +71,7 @@ export default function Index() {
 
           setPokemons((prevPokemons) => [...prevPokemons, ...detailedPokemons]);
         } catch(e){
-          console.log(e)
+          console.log("an error occured:",e)
         }
       }
  
