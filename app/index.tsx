@@ -1,6 +1,6 @@
 import { Link } from "expo-router";
-import { useEffect, useState } from "react";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { Animated, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 interface Pokemon {
   name:string;
@@ -38,16 +38,30 @@ const colorsByType:Record<string,string>={
 }
 
 
+
 export default function Index() {
 
   const [pokemons, setPokemons]= useState<Pokemon[]>([]);
- 
+  const popValue = useRef(new Animated.Value(0)).current;
+  
+  
+  useEffect(() => {
+    //popValue.setValue(0);
+    Animated.spring(popValue, {
+      toValue: 1,         
+      friction: 4,        
+      tension: 60,        
+      useNativeDriver: true,
+    }).start();
+  }, [pokemons]);
+
+
+
   useEffect(() => {
       //fetching pokemons
       fetchPokemons();
 
   },[])
- 
 
   async function fetchPokemons(currentOffset = 0) {
         try{
@@ -81,15 +95,21 @@ export default function Index() {
       padding:16,
       backgroundColor:"#f4511e20",
     }}>
+      
       {pokemons.map((pokemon)=>(
-        <Link key = {pokemon.name}
+        
+        <Animated.View key = {pokemon.name}
+         style={{
+          gap:16,
+          transform:[{scale:popValue}]
+        }}>
+        <Link 
           href={{pathname: "/details", params: {name: pokemon.name}}}
           style={{
           //@ts-ignore
           backgroundColor: colorsByType[pokemon.types[0].type.name] +60,
           padding:20,
           borderRadius:16,
-
         }}
         >
         <View>
@@ -112,6 +132,7 @@ export default function Index() {
         
         </View>
         </Link>
+        </Animated.View>
       ))}
 
       <Pressable
@@ -123,7 +144,7 @@ export default function Index() {
       >
         <Text style={styles.loadMoreBtnText}>Get More Pokemons!</Text>
       </Pressable>
-
+        
     </ScrollView>
   );
 }
@@ -144,14 +165,14 @@ const styles = StyleSheet.create({
   },
   loadMoreBtn:{
     borderRadius:12,
-    backgroundColor:"#333333",
+    backgroundColor:"#f4511e",
     width:"50%",
     alignSelf:"center",
     padding:8,
   },
   loadMoreBtnPressed:{
-    backgroundColor:"#555555",
-    transform:[{scale:0.98}],
+    backgroundColor:"#f4511e80",
+    transform:[{scale:0.95}]
   },
   loadMoreBtnText:{
     color:"white",
