@@ -5,14 +5,16 @@ export default function RootLayout() {
     screenOptions={{
       headerStyle:{
         backgroundColor:"#f4511e",
+
       },
       headerTintColor:"#fff",
-      headerTitleAlign:"center",
+      headerTitleAlign:"left",
       headerTitleStyle:{
         fontWeight:"bold",
         fontSize:20,
         fontFamily:"arial",
-      }
+      },
+      
 
     }}
   >

@@ -1,4 +1,4 @@
-import { Link } from "expo-router";
+import { Link, Stack } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Animated, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
@@ -90,10 +90,34 @@ export default function Index() {
       }
  
   return (
+    <>
+    <Stack.Screen options={{ headerShown:false }} 
+   
+    />
+
+    <View style={styles.container}>
+      {/* Set status bar properties to coordinate nicely with your orange theme */}
+      {/* <StatusBar barStyle="light-content" backgroundColor="#f4511e" /> */}
+
+      {/* The Circular Partial Header Shape Component */}
+      <View style={styles.circleHeader}>
+
+          <Text style={styles.headerTitle}>Pokedex</Text>
+
+      </View>
+
+      {/* Your actual body screen content underneath */}
+      <View style={styles.content}>
+        <Text style={styles.bodyText}>Welcome to your custom layout!</Text>
+      </View>
+    </View>
+
+
     <ScrollView contentContainerStyle={{
       gap:16,
       padding:16,
       backgroundColor:"#f4511e20",
+      paddingTop:100,
     }}>
       
       {pokemons.map((pokemon)=>(
@@ -146,6 +170,7 @@ export default function Index() {
       </Pressable>
         
     </ScrollView>
+    </>
   );
 }
 
@@ -181,5 +206,42 @@ const styles = StyleSheet.create({
     fontFamily:"arial",
     fontStyle:"italic",
     textAlign:"center",
+  },
+
+
+  container: {
+    flex: 1, 
+  },
+  circleHeader: {
+    backgroundColor: "#f4511e",
+    // Make width and height large so it crops out smoothly
+    width: "55%",                // Doesn't cover full width across top right
+    height: 80,                 // Controls depth down the screen canvas
+    borderBottomRightRadius: 160, // Large radius gives it that organic circular arc feel
+    paddingHorizontal: 24,
+    justifyContent: "center",
+    zIndex:10,
+    
+    // Optional shadow properties for depth over background contents
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  headerTitle: {
+    color: "#fff",
+    fontSize: 28,
+    fontWeight: "bold",
+    letterSpacing: 0.5,
+    marginTop: 10,              // Positions title comfortably below status area
+  },
+  content: {
+    flex: 1,
+    padding: 24,
+  },
+  bodyText: {
+    fontSize: 16,
+    color: "#333",
   }
 })

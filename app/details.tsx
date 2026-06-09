@@ -95,7 +95,6 @@ export default function Details() {
         justifyContent:"space-around",
         padding:10,
         backgroundColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] + "55" : "#f5f5f5",
-        //backgroundColor:"#f3f3f3",
         height:"100%",
         maxHeight:400,
         borderRadius:16,
