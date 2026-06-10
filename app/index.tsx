@@ -1,6 +1,6 @@
 import { Link, Stack } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { Animated, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Animated, Dimensions, Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 interface Pokemon {
   name:string;
@@ -37,13 +37,18 @@ const colorsByType:Record<string,string>={
   fairy: "#D685AD"
 }
 
-
+const { height: screenHeight } = Dimensions.get("window");
 
 export default function Index() {
 
   const [pokemons, setPokemons]= useState<Pokemon[]>([]);
   const popValue = useRef(new Animated.Value(0)).current;
+  const [isExpanded, setIsExpanded] = useState(false);
   
+
+  const handleToggle = () => {
+    setIsExpanded(prevState => !prevState);
+  };
   
   useEffect(() => {
     //popValue.setValue(0);
@@ -96,20 +101,42 @@ export default function Index() {
     />
 
     <View style={styles.container}>
-      {/* Set status bar properties to coordinate nicely with your orange theme */}
-      {/* <StatusBar barStyle="light-content" backgroundColor="#f4511e" /> */}
 
-      {/* The Circular Partial Header Shape Component */}
-      <View style={styles.circleHeader}>
-
+      <View style={styles.circleHeaderLeft}>
           <Text style={styles.headerTitle}>Pokedex</Text>
-
       </View>
 
-      {/* Your actual body screen content underneath */}
-      <View style={styles.content}>
-        <Text style={styles.bodyText}>Welcome to your custom layout!</Text>
-      </View>
+
+      
+      <Pressable
+        onPress={handleToggle}
+        //@ts-ignore
+        style={({ pressed }) => [
+          styles.circleHeaderRight,
+          isExpanded ? styles.circleHeaderRightPressed : styles.circleHeaderRight,
+          pressed
+        ]}
+      >
+        {!isExpanded&&(
+          <Text style={styles.headerTitle}>Filters</Text>
+        )}
+        
+        {isExpanded&&(
+          <Text style={styles.expandedHeaderTitle}>Search:</Text>
+        )}
+        {isExpanded&&(
+          <Text style={styles.expandedHeaderTitle}>By Type</Text>
+        )}
+        {isExpanded&&(
+          <Text style={styles.expandedHeaderTitle}>A-Z</Text>
+        )}
+        {isExpanded&&(
+          <Text style={styles.expandedHeaderTitle}>Z-A</Text>
+        )}
+       
+        
+      </Pressable>
+
     </View>
 
 
@@ -210,10 +237,15 @@ const styles = StyleSheet.create({
 
 
   container: {
-    flex: 1, 
+    flex: 1,
+    width:"100%", 
+    position:"relative",
+    //flexWrap:"wrap",
   },
-  circleHeader: {
+  circleHeaderLeft: {
     backgroundColor: "#f4511e",
+    position: "absolute",
+    left:0,
     // Make width and height large so it crops out smoothly
     width: "55%",                // Doesn't cover full width across top right
     height: 80,                 // Controls depth down the screen canvas
@@ -229,12 +261,44 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 5,
   },
+  circleHeaderRight: {
+    backgroundColor: "#f4511e",
+    position: "absolute",
+    right:0,
+    // Make width and height large so it crops out smoothly
+    width: "55%",                // Doesn't cover full width across top right
+    height: 80,                 // Controls depth down the screen canvas
+    borderBottomLeftRadius: 160, // Large radius gives it that organic circular arc feel
+    paddingHorizontal: 24,
+    justifyContent: "center",
+    alignItems:"flex-end",
+    zIndex:9,
+    
+    // Optional shadow properties for depth over background contents
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  circleHeaderRightPressed:{
+    height: screenHeight*0.5 ,
+    zIndex:10,
+    alignItems:"flex-start",
+  },
   headerTitle: {
     color: "#fff",
     fontSize: 28,
     fontWeight: "bold",
     letterSpacing: 0.5,
     marginTop: 10,              // Positions title comfortably below status area
+  },
+  expandedHeaderTitle:{
+    color:"#fff",
+    fontSize:18,
+    fontWeight:"bold",
+    marginTop:20,
+    letterSpacing:1.2,
   },
   content: {
     flex: 1,
