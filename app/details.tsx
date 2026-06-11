@@ -53,7 +53,7 @@ export default function Details() {
           const details = await response.json()
 
           const pokemonData = {
-              abilities: details.abilities,
+              abilities: details.abilities.map((abilityInfo:any)=>abilityInfo.ability.name),
               imageFront:details.sprites.front_default,
               sImageFront:details.sprites.front_shiny,
               imageBack:details.sprites.back_default,
@@ -67,7 +67,9 @@ export default function Details() {
           console.log("an error occured:",e)
         }
       }
-  
+      const typeName1= pokemonData?.types[0].toUpperCase()||""
+      const typeName2 = pokemonData?.types[1]?.toUpperCase() ?? "---";
+
  
   return (
     <>
@@ -96,7 +98,7 @@ export default function Details() {
         padding:10,
         backgroundColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] + "55" : "#f5f5f5",
         height:"100%",
-        maxHeight:400,
+        maxHeight:300,
         borderRadius:16,
         borderWidth:1,
         borderColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] : "#f5f5f5",
@@ -127,7 +129,20 @@ export default function Details() {
         </View>     
         
         
+        
+        
       </View>
+
+      <View style={styles.detailsType}>
+          <Text style={[styles.textTypes,
+            {backgroundColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]]:"#3333"}]}> 
+              {typeName1}
+          </Text>
+          <Text style={[styles.textTypes,
+            {backgroundColor:pokemonData?.types[1] ? colorsByType[pokemonData?.types[1]]:"#3333"}]}>
+              {typeName2}
+          </Text>
+        </View>
 
       
     </ScrollView>
@@ -161,7 +176,31 @@ const styles = StyleSheet.create({
     fontFamily:"arial",
     fontStyle:"italic",
     width:"100%",
+  },
 
 
+  detailsType:{
+    flex:1,
+    flexDirection:"row",
+    flexWrap:"wrap",
+    alignItems:"flex-start",
+    //justifyContent:"space-around",
+    width:"100%",
+    //borderWidth:1,
+    //borderColor:"#3333",
+
+  },
+  textTypes:{
+    fontSize:16,
+    fontWeight:"bold",
+    letterSpacing:.5,
+    fontStyle:"italic",
+    textAlign:"center",
+    width:"30%",
+    padding:12,
+    marginRight:15,
+    borderRadius:160,
+    color:"#ffff"
   }
+
 })
