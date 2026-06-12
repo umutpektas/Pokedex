@@ -23,7 +23,6 @@ export default function RootLayout() {
       title:"Details",
       headerBackButtonDisplayMode:"minimal",
       presentation: "modal",
-      animation:"slide_from_bottom"
       }}/>
   </Stack>;
 }

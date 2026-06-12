@@ -9,6 +9,8 @@ interface PokemonData {
   imageBack: string | null;
   sImageBack: string | null;
   types: string[];
+  weight: number;
+  description: string;
 }
 
 const colorsByType:Record<string,string>={
@@ -47,10 +49,41 @@ export default function Details() {
     
       },[])
 
+    async function fetchPokemonDescription(pokemonName: string): Promise<string> {
+      try {
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonName.toLowerCase()}`);
+        if (!response.ok) return "No description available.";
+
+        const speciesDetails = await response.json();
+        
+        // Find the English entry
+        const englishEntry = speciesDetails.flavor_text_entries.find(
+          (entry: any) => entry.language.name === 'en'
+        );
+
+        if (englishEntry) {
+          // Clean up legacy ROM formatting characters (\f, \n, etc.)
+          return englishEntry.flavor_text
+            .replace(/\f/g, '\n')
+            .replace(/\u00ad\n/g, '')
+            .replace(/\u00ad/g, '')
+            .replace(/ \n/g, ' ')
+            .replace(/\n/g, ' ');
+        }
+        return "No English description available.";
+      } catch {
+        return "Error fetching description.";
+      }
+    }  
+
+
+  
+
     async function fetchPokemons(pokemonName: string) {
         try{
           const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`)
           const details = await response.json()
+          const description = await fetchPokemonDescription(pokemonName);
 
           const pokemonData = {
               abilities: details.abilities.map((abilityInfo:any)=>abilityInfo.ability.name),
@@ -59,6 +92,8 @@ export default function Details() {
               imageBack:details.sprites.back_default,
               sImageBack:details.sprites.back_shiny,
               types: details.types.map((typeInfo:any) => typeInfo.type.name),
+              weight: details.weight/10,
+              description: description,
           }
           setPokemonData(pokemonData);
           console.log(JSON.stringify(pokemonData, null, 2))
@@ -67,14 +102,18 @@ export default function Details() {
           console.log("an error occured:",e)
         }
       }
-      const typeName1= pokemonData?.types[0].toUpperCase()||""
-      const typeName2 = pokemonData?.types[1]?.toUpperCase() ?? "---";
+
+    const typeName1= pokemonData?.types[0].toUpperCase()||""
+    const typeName2 = pokemonData?.types[1]?.toUpperCase() ?? "---";
+    const abilityName1 = pokemonData?.abilities[0]?.charAt(0).toUpperCase() + pokemonData?.abilities[0]?.slice(1).toLowerCase();
+    const abilityName2 = pokemonData?.abilities[1]?.charAt(0).toUpperCase() + pokemonData?.abilities[1]?.slice(1).toLowerCase();
+
 
  
   return (
     <>
     <Stack.Screen options={{ 
-      title : pokemonName.toUpperCase(),
+      title : "Pokemon Card",
       headerStyle:{
         backgroundColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] : "#f5f5f5",
       }
@@ -84,12 +123,13 @@ export default function Details() {
     />
 
 
-    <ScrollView contentContainerStyle={{
+    <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{
       gap:16,
       padding:16, 
       backgroundColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] + "25" : "#f5f5f5",
-      width:"100%",
-      height:"100%",
+      width:"100%",      
+      flexGrow:1,
+      
     }}>
       <View style={{
         flexDirection:"row",
@@ -97,11 +137,13 @@ export default function Details() {
         justifyContent:"space-around",
         padding:10,
         backgroundColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] + "55" : "#f5f5f5",
-        height:"100%",
-        maxHeight:300,
+        //height:"100%",
+        minHeight:300,
         borderRadius:16,
         borderWidth:1,
         borderColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] : "#f5f5f5",
+        boxShadow:"0px 4px 10px 2px rgba(0,0,0,0.35)",
+        //marginTop:50,
       }}
       >
         <View style={styles.imageWrapper}>
@@ -126,11 +168,18 @@ export default function Details() {
           source={{uri:pokemonData?.sImageBack||"undefined"}}
           style={{width:"100%",height:"45%"}}
           />
-        </View>     
+        </View>    
         
-        
-        
-        
+      </View>
+
+      <View style={[styles.descriptionContainer, 
+        {backgroundColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] + "55" : "#f5f5f5",
+         borderColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] : "#f5f5f5", 
+        }]}>
+        <Text style={styles.descriptionHeader}>{pokemonName.toUpperCase()}</Text>
+        <View style={[styles.divider,]}></View>
+        <Text style={styles.description}>{pokemonData?.description || "No description available"}</Text>
+
       </View>
 
       <View style={styles.detailsType}>
@@ -142,7 +191,37 @@ export default function Details() {
             {backgroundColor:pokemonData?.types[1] ? colorsByType[pokemonData?.types[1]]:"#3333"}]}>
               {typeName2}
           </Text>
-        </View>
+      </View>
+
+      <View style={[styles.weightContainer, 
+        {backgroundColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] + "55" : "#f5f5f5",
+         borderColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] : "#f5f5f5", 
+        }]}>
+        <Text style={styles.weightText}>Weight: {pokemonData?.weight} KG</Text>
+        {/* <Text></Text> */}
+      </View>
+
+      <View style={[styles.abilitiesContainer,{backgroundColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] + "55" : "#f5f5f5",
+         borderColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] : "#f5f5f5", 
+        }]}>
+        <Text style={[styles.abilitiesText,]}>Abilities</Text>
+          <View style={[styles.divider,]}></View>
+          <View style={[styles.abilitiesWrapper,
+            {borderColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]]:"#f5f5f5",
+              backgroundColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] + "25" : "#f5f5f5"
+            }]}>
+            <Text style={[styles.abilitiesHeader,]}>{abilityName1||"---"}</Text>
+            <Text style={[styles.abilitiesInnerText,]}></Text>
+          </View>
+          <View style={[styles.abilitiesWrapper,
+            {borderColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]]:"#f5f5f5",
+              backgroundColor:pokemonData?.types[0] ? colorsByType[pokemonData?.types[0]] + "25" : "#f5f5f5"
+
+            }]}>
+            <Text style={[styles.abilitiesHeader,]}>{abilityName2||"---"}</Text>
+            <Text style={[styles.abilitiesInnerText,]}>lorem10</Text>
+          </View>
+      </View>
 
       
     </ScrollView>
@@ -158,6 +237,7 @@ const styles = StyleSheet.create({
     justifyContent:"space-around",
     width:"45%",
     height:"100%",
+    
   },
   imageText:{
     fontSize:16,
@@ -178,16 +258,42 @@ const styles = StyleSheet.create({
     width:"100%",
   },
 
+  descriptionContainer:{
+    flexDirection:"column",
+    padding:24,
+    //backgroundColor:"#f5f5f5",
+    borderWidth:1,
+    borderColor:"#3333",
+    borderRadius:16,
+    boxShadow:"0px 4px 10px 2px rgba(0,0,0,0.35)",
+  },
+  descriptionHeader:{
+    //padding:12,
+    //paddingBottom:8,
+    fontSize:24,
+    fontWeight:"bold",
+    color:"#111111",
+    letterSpacing:1,
+  },
+  description:{
+    fontSize:16,
+    padding:6,
+    paddingLeft:0,
+    color:"#333333",
+    letterSpacing:.5,
+  },
+
 
   detailsType:{
-    flex:1,
+    //flex:1,
     flexDirection:"row",
     flexWrap:"wrap",
     alignItems:"flex-start",
     //justifyContent:"space-around",
-    width:"100%",
+    //width:"100%",
     //borderWidth:1,
     //borderColor:"#3333",
+    
 
   },
   textTypes:{
@@ -200,7 +306,76 @@ const styles = StyleSheet.create({
     padding:12,
     marginRight:15,
     borderRadius:160,
-    color:"#ffff"
+    color:"#ffff",
+    boxShadow:"0px 4px 10px 1px rgba(0,0,0,0.35)",
+    
+  },
+
+  weightContainer:{
+    flexDirection:"column",
+    padding:12,
+    marginTop:12,
+    marginBottom:24,
+    borderWidth:1,
+    borderRadius:160,
+    width:"45%",
+    alignItems:"center",
+    boxShadow:"0px 4px 10px 2px rgba(0,0,0,0.35)",
+  },
+  weightText:{
+    fontSize:16,
+    fontWeight:"bold",
+    color:"#111111",
+    letterSpacing:.4,    
+  },
+
+  abilitiesContainer:{
+    flexDirection:"column",
+    padding:12,
+    borderWidth:1,
+    borderRadius:16,
+    width:"100%",
+    boxShadow:"0px 4px 10px 2px rgba(0,0,0,0.35)",
+    
+  },
+
+  abilitiesText:{
+    fontSize:22,
+    fontWeight:"bold",
+    //paddingBottom:2,
+    paddingLeft:8,
+    letterSpacing:.5,
+    fontStyle:"italic",
+    textAlign:"left",
+  },
+  divider:{
+    height:1,
+    width:"75%",
+    backgroundColor:"#333333",
+    borderRadius:160,
+    borderWidth:1,
+    marginBottom:8,
+  },
+
+  abilitiesHeader:{
+    fontSize:18,
+    fontWeight:"bold",
+  },
+  
+  abilitiesWrapper:{
+    flexDirection:"column",
+    padding:8,
+    borderLeftWidth:4,
+    borderRadius:16,
+    width:"100%",
+    marginBottom:8,
+  },
+  abilitiesInnerText:{
+    fontSize:16,
+    fontStyle:"italic",
+    color:"#333333"
   }
 
+
+  
 })
